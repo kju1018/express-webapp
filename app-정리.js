@@ -32,7 +32,9 @@ nunjucks.configure("views", {
 });
 
 //정적 파일들을 제공하는 폴더 지정
+// app.use(express.static(__dirname + "/public"));
 app.use(express.static(path.join(__dirname, "public")));//use는 모든 요청 방식을 다 허용, 모든요청에 해당하는 미들웨어
+// app.use(express.status(path.join(__dirname, "spa")));
 
 //모든 요청 경로에 실행되는 미들웨어
 // app.use((req, res, next) => {
@@ -63,7 +65,7 @@ app.use(express.static(path.join(__dirname, "public")));//use는 모든 요청 �
 // app.use(morgan(":method :url :remote-addr :status :res[content-length] "));
 
 
-// 브라우저 캐싱 금지 미들웨어 적용
+//브라우저 캐싱 금지 미들웨어 적용
 app.use((req, res, next) => {
     res.set("Cache-Control", "no-store");
     next();
@@ -76,29 +78,35 @@ app.use(express.json());//raw/json: {"param1":"value1", "param2":"value2"}
 
 //"/"이렇게 요청했을때 exam01Home라는 미들웨어를 실행하겠다. 라우터도 미들웨어
 app.use("/", exam01Home);
+// app.use("/board", exam01Home);
 
-//미들웨어 형식
 // app.use("/", (req, res, next) => {
 //     res.send("<html><body>Test</body></html>");
-// })
+// })//미들웨어 형식
 
 app.use("/exam02", exam02BindIfFor);
 app.use("/exam03", exam03Include);
 app.use("/exam04", exam04ExtendsBlock);
 app.use("/exam05", exam05MiddleWare);
 app.use("/exam06", exam06DataReceive);
-app.use("/exam07", exam07MultipartFormData); 
+app.use("/exam07", exam07MultipartFormData);
+
+//기본(http://localhost:8080) 응답을 제공
+// app.get("/", (req, res) => {
+//     res.sendFile(__dirname + "/index.html")
+// });
 
 //404처리 미들웨어
 //위에 맞는 경로가 없을때
 app.use((req, res, next) => {
-    
-    const error = new Error("잘못된 요청");// 에러 객체
-    error.status = 404;
-    next(error);
+    // res.status(404);
+    // res.sendFile(path.join(__dirname, "views/common/error.html"));
+    // res.render("common/error.html");
+    const err = new Error("잘못된 요청");
+    err.status = 404;
+    next(err);
 })
 
-//에러 처리 미들웨어
 app.use((err, req, res, next) => {
     const error = (process.env.NODE_ENV !== "production")? err:{};
     // err= (app.get("env") !== "productrion")? err:{};//req.app.get("env") == app.get("env") req 생략가능
@@ -106,6 +114,13 @@ app.use((err, req, res, next) => {
     error.status = err.status || 500;
     res.status(error.status);
     res.render("common/error.html", {error});
+
+    // err = (process.env.NODE_ENV !== "production")? err:{};
+    // // err= (app.get("env") !== "productrion")? err:{};//req.app.get("env") == app.get("env") req 생략가능
+    // err.message = req.method + " " + req.url + ": " + err.message;
+    // err.status = err.status || 500;
+    // res.status(err.status);
+    // res.render("common/error.html", {err});
 });
 
 //애플리케이션 실행

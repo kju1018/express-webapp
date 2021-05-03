@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get("", (req, res) => {//""여기는 app.js에서 어떻게 매핑 했냐에 따라
     const userId = null;
-    const board = {bno:1, btitle:"제목1", bcontent:"내용1",bwriter:"usser1", bdate:"2021.05.11"};
+    const board = {bno:1, btitle:"제목1", bcontent:"내용1",bwriter:"user1", bdate:"2021.05.11"};
 
     const boards = [];
     for(var i =1 ; i <= 10; i++){

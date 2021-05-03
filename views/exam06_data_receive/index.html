@@ -1,0 +1,54 @@
+{% include "common/header.html" %}
+
+<div class="card">
+  <div class="card-header">
+    exam06_body_parser
+  </div>
+
+  <div class="card-body">
+    <div class="alert alert-primary">GET방식</div>
+    <div>
+      <a class="btn btn-info btn-sm" href="/exam06/getQueryString?bno=100&pageNo=10">GET: ?getQueryString?bno=100&pageNo=7</a>
+      <a class="btn btn-info btn-sm" href="/exam06/getPathVariable/200/20">GET: getPathVariable/100/7</a>
+    </div>
+    <div class="alert alert-primary mt-3">POST방식</div>
+    <div>
+        <button class="btn btn-info btn-sm" onclick="handleBtn1()">POST: x-www-form-urlencoded</button>
+        <script>
+            function handleBtn1() {
+                const board ={btitle:"제목1", bcontent:"내용1"};
+                $.ajax({
+                    url: "/exam06/postReceive",
+                    method: "post",
+                    data: board //그냥 board를 주게되면 x-www-form-urlencoded 이 방식
+                    //btitle=제목1&bcontent=내용1
+                    //ajax는 완전한 프로미스 버전이 아님 그래서 done가 옴
+                }).done(data => {
+                    $("#content").html(data);
+                });
+            }
+        </script>
+
+        <button class="btn btn-info btn-sm" onclick="handleBtn2()">POST: raw / json</button>
+        <script>
+            function handleBtn2() {
+                const board ={btitle:"제목2", bcontent:"내용2"};
+                $.ajax({
+                    url: "/exam06/postReceive",
+                    method: "post",
+                    contentType: "application/json; charset=UTF-8",
+                    data: JSON.stringify(board)//board를 문자열로 만든다는 이야기{"btitle":"제목2", "bcontent":"내용2"};
+                    //이렇게 "btitle" 바꿔준다는 이야기
+                }).done(data => {
+                    $("#content").html(data);
+                });
+            }
+        </script>
+
+        <hr/>
+        <div id="content"></div>
+    </div>
+  </div>
+</div>
+
+{% include "common/footer.html" %}
