@@ -18,9 +18,16 @@
             Express
             </a>
             <div>
+              {% if uid == null %}
                 <div>
-                    <a class="btn btn-success btn-sm" href="#">로그인</a>
+                  <a class="btn btn-success btn-sm" href="/exam09">로그인</a>
                 </div>
+              {% else %}
+                <div>
+                  UID: {{uid}}
+                  <a class="btn btn-success" href="/exam09/logout">로그아웃</a>
+                </div>
+              {% endif %}
             </div>
         </nav>
         <div class="flex-grow-1 container-fluid">

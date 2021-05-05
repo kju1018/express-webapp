@@ -4,6 +4,8 @@ const path = require("path");
 const nunjucks =  require("nunjucks");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
+const session = require("express-session");
 
 //라우터 가져오기
 const exam01Home = require("./routes/exam01-home");
@@ -13,6 +15,9 @@ const exam04ExtendsBlock = require("./routes/exam04-extend-block");
 const exam05MiddleWare = require("./routes/exam05-middleware");
 const exam06DataReceive = require("./routes/exam06-data-receive");
 const exam07MultipartFormData = require("./routes/exam07-multipart-form-data");
+const exam08Cookie = require("./routes/exam08-cookie");
+const exam09Session = require("./routes/exam09-session");
+const exam10Router = require("./routes/exam10-router");
 
 // .env파일을 읽어서 process.env에 추가
 dotenv.config();
@@ -30,6 +35,7 @@ nunjucks.configure("views", {
     express: app,
     watch: true
 });
+
 
 //정적 파일들을 제공하는 폴더 지정
 app.use(express.static(path.join(__dirname, "public")));//use는 모든 요청 방식을 다 허용, 모든요청에 해당하는 미들웨어
@@ -74,6 +80,33 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({extended:true})); //x-www-form-urlencoded: param1=value1&param2=value2 
 app.use(express.json());//raw/json: {"param1":"value1", "param2":"value2"}
 
+
+
+//요청 HTTP 헤더에 있는 쿠키를 파싱해서(해석해서) 
+//req.cookies(서명이 안된것) 또는 req.signedCookies(서명이 된) 객체로 생성하는 미들웨어 적용
+app.use(cookieParser(process.env.COOKIE_SECRET));
+// app.use(cookieParser());
+
+//세션 설정
+app.use(session({
+    resave: false, //다시 저장 false 
+    saveUninitialized: false,
+    secret: process.env.COOKIE_SECRET,
+    cookie: {
+        httpOnly: true, //자바 스크립트에서 사용하지 말아라
+        secure: false,
+        maxAge: 1000*60*30 //30분동안 유효
+    }
+}));//session이 리턴하는게 미들웨어
+
+//모든 템블릿(뷰, html)에서 바인딩 할 수 있는 데이터를 설정하는 미들웨어 적용
+app.use((req, res, next) => {
+    res.locals.uid = req.session.uid || null; //session에 uid가있으면 넣어주고 없으면 null
+    next();
+})
+
+
+//요청 경로와 라우터 매핑
 //"/"이렇게 요청했을때 exam01Home라는 미들웨어를 실행하겠다. 라우터도 미들웨어
 app.use("/", exam01Home);
 
@@ -81,13 +114,15 @@ app.use("/", exam01Home);
 // app.use("/", (req, res, next) => {
 //     res.send("<html><body>Test</body></html>");
 // })
-
 app.use("/exam02", exam02BindIfFor);
 app.use("/exam03", exam03Include);
 app.use("/exam04", exam04ExtendsBlock);
 app.use("/exam05", exam05MiddleWare);
 app.use("/exam06", exam06DataReceive);
-app.use("/exam07", exam07MultipartFormData); 
+app.use("/exam07", exam07MultipartFormData);
+app.use("/exam08", exam08Cookie);
+app.use("/exam09", exam09Session);
+app.use("/exam10", exam10Router);
 
 //404처리 미들웨어
 //위에 맞는 경로가 없을때
