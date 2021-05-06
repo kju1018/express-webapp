@@ -6,6 +6,8 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const { sequelize } = require("./sequelize/models/index")//./sequelize/models/여기까지 해도 상관없음 하지만 지금은 명시적으로 작성
+//require("./sequelize/models/index")이거는 db를 가져오지만 구조분해할당으로 sequelize를 가져옴
 
 //라우터 가져오기
 const exam01Home = require("./routes/exam01-home");
@@ -18,6 +20,7 @@ const exam07MultipartFormData = require("./routes/exam07-multipart-form-data");
 const exam08Cookie = require("./routes/exam08-cookie");
 const exam09Session = require("./routes/exam09-session");
 const exam10Router = require("./routes/exam10-router");
+const exam11Sequelize = require("./routes/exam11-sequelize");
 
 // .env파일을 읽어서 process.env에 추가
 dotenv.config();
@@ -35,6 +38,15 @@ nunjucks.configure("views", {
     express: app,
     watch: true
 });
+
+//sequelize 데이터 연결과 동시에 모델과 테이블을 매칭(동기화)
+sequelize.sync()
+    .then(() => {
+        console.log("DB 연결 성공");
+    })
+    .catch((err) => {
+        console.log("DB 연결 실패", err.message);
+    });
 
 
 //정적 파일들을 제공하는 폴더 지정
@@ -99,12 +111,11 @@ app.use(session({
     }
 }));//session이 리턴하는게 미들웨어
 
-//모든 템블릿(뷰, html)에서 바인딩 할 수 있는 데이터를 설정하는 미들웨어 적용
+//(모든 템블릿(뷰, html)에서 바인딩 할 수 있는 데이터)를 설정하는 미들웨어 적용
 app.use((req, res, next) => {
     res.locals.uid = req.session.uid || null; //session에 uid가있으면 넣어주고 없으면 null
     next();
 })
-
 
 //요청 경로와 라우터 매핑
 //"/"이렇게 요청했을때 exam01Home라는 미들웨어를 실행하겠다. 라우터도 미들웨어
@@ -123,6 +134,7 @@ app.use("/exam07", exam07MultipartFormData);
 app.use("/exam08", exam08Cookie);
 app.use("/exam09", exam09Session);
 app.use("/exam10", exam10Router);
+app.use("/exam11", exam11Sequelize);
 
 //404처리 미들웨어
 //위에 맞는 경로가 없을때
