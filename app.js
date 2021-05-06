@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const { sequelize } = require("./sequelize/models/index");
 
 //라우터 가져오기
 const exam01Home = require("./routes/exam01-home");
@@ -35,6 +36,14 @@ nunjucks.configure("views", {
     express: app,
     watch: true
 });
+
+sequelize.sync()
+    .then(() =>{
+        console.log("DB 연결 성공");
+    })
+    .catch((err) => {
+        console.log("DB 연결 실패", err.message);
+    });
 
 
 //정적 파일들을 제공하는 폴더 지정
