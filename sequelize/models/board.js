@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         sequelize,
-        modelName: "Board",
+        modelName: "Board",//이게 index의 model.name
         tableName: "boards",
         timestamps: false, //createAt과 updateAt 컬럼을 사용 안함
     })//왜 이닛을 만드냐

@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         // static init({}) 이렇게 작성해도됨
         static associate(models) {
             models.User.hasMany(models.Board, {foreignKey:"bwriter", sourceKey:"userid"});
+            models.User.hasMany(models.Order, {foreignKey:"userid", sourceKey:"userid"});
         }
     }
     //DB 컬럼 데이터 타입에 맞게 모델의 속성을 정의

@@ -1,4 +1,3 @@
-const e = require("express");
 const db = require("../sequelize/models/index"); //db모듈 가져옴
 const Op = db.Sequelize.Op;
 
@@ -158,6 +157,60 @@ module.exports = {
                 where: {
                     bno: {[Op.lte]: 5}//5이하
                 }     
+            });
+            return user;
+            
+            // 테스트
+            // const user = await db.User.findOne({
+            //     where: {userid},
+            // });
+            // user.dataValues.Boards = await user.getBoards({
+            //     where: {
+            //         bno: "1000"//5이하
+            //     }     
+            // });
+            // return user;
+        
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    getBoardAndUser: async function(bno){
+        try {
+            //방법 1
+            // const board = await db.Board.findOne({
+            //     where: {bno},
+            //     include: [
+            //         {model: db.User, attributes: ["userid", "username", "userauthority"]}
+            //     ]
+            // });
+            // return board;
+            //방법 2
+            const board = await db.Board.findOne({where:{bno}});
+            board.dataValues.User = await board.getUser({
+                attributes: ["userid", "username", "userauthority"]
+            });
+            return board;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    getUserWithOrderInfo: async function(userid) {
+        try {
+            const user = await db.User.findOne({
+                attributes: ["userid", "username", "userauthority"],
+                where: {userid},
+                include: [{
+                    model: db.Order,
+                    include: [{
+                        model: db.OrderItem,
+                        include: [{
+                            model: db.Product
+                        }]
+                    }]
+                }]
             });
             return user;
         } catch (error) {

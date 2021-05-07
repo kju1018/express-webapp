@@ -107,6 +107,26 @@ router.get("/path8", async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+}),
+
+router.get("/path9", async (req, res, next) => {
+    try {
+        const bno =  parseInt(req.query.bno);
+        const board = await boardService.getBoardAndUser(bno);
+        res.json(board);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get("/path10", async (req, res, next) => {
+    try {
+        const userid = req.query.userid;
+        const user = await boardService.getUserWithOrderInfo(userid);
+        res.json(user);
+    } catch (error) {
+        next(error);
+    }
 })
 
 module.exports = router;

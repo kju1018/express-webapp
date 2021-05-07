@@ -2,10 +2,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const Sequelize = require('sequelize');
-const basename = path.basename(__filename);
+const Sequelize = require('sequelize');//생성자 함수
+const basename = path.basename(__filename);//절대경로, basename() 경로에서 앞부분 빼고 파일 이름만
 const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
+const config = require(__dirname + '/../config/config.json')[env];//models의 절대경로, module이 아니여도 가져올 수 있음
 const db = {};
 
 let sequelize;
