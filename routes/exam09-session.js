@@ -14,7 +14,8 @@ router.post("/login", (req, res, next) => {
     //
     req.session.uid = user.uid;
     res.redirect("/exam09");
-});
+});//req.session.uid에 저장 -> 리다이렉트 -> res.locals.uid에 req.session.uid를 저장
+//그리고 뷰에서 사용
 
 router.get("/logout", (req, res, next) => {
     delete req.session.uid;

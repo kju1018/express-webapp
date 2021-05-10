@@ -18,7 +18,9 @@
             Express
             </a>
             <div>
-              {% if uid == null %}
+              {# exam09를 실행할 때 주석해제 #}
+              {# 
+              {% if uid == null and userid == null %}
                 <div>
                   <a class="btn btn-success btn-sm" href="/exam09">로그인</a>
                 </div>
@@ -26,6 +28,20 @@
                 <div>
                   UID: {{uid}}
                   <a class="btn btn-success" href="/exam09/logout">로그아웃</a>
+                </div>
+              {% endif %} 
+              
+              #}
+              
+              {# exam12를 실행할 때 주석해제 #}
+              {% if userid == null %}
+                <div>
+                  <a class="btn btn-success btn-sm" href="/exam12/loginForm">로그인</a>
+                </div>
+              {% else %}
+                <div>
+                  UID: {{userid}}
+                  <a class="btn btn-success" href="/exam12/logout">로그아웃</a>
                 </div>
               {% endif %}
             </div>

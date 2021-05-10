@@ -11,7 +11,7 @@ router.get("/createCookie", (req, res, next) => {
     const strUser = JSON.stringify(user);// 이 친구가 쿠키의 값
     res.cookie("user", strUser, {
         domain: "localhost",//쿠키를 너가 언제 들고 와야하냐, 어느 서버로 접속할때 쿠키를 가져와야 하느냐, 언제 
-        path: "/", //localhost/a/... localhost/b/... 여기서 a에만 가고싶을때 지정
+        path: "/", //localhost/a/... localhost/b/... 여기서 a에만 가고싶을때 지정, 지정할 경로를 설정
         expires: new Date(new Date().getTime() + 1000*60*30),//지금 시간으로부터 30분
         signed: true,
         //쿠키의 값이 변질되지않도록 서명을 할지 말지 내가 보낸 쿠키의 값이 클라이언트에의해 변질될수도 있음 즉 값이 바뀔수있음

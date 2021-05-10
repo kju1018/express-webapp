@@ -6,8 +6,11 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
-const { sequelize } = require("./sequelize/models/index")//./sequelize/models/여기까지 해도 상관없음 하지만 지금은 명시적으로 작성
+const { sequelize } = require("./sequelize/models/index");//./sequelize/models/여기까지 해도 상관없음 하지만 지금은 명시적으로 작성
 //require("./sequelize/models/index")이거는 db를 가져오지만 구조분해할당으로 sequelize를 가져옴
+const sessionAuth = require("./security/sessionAuth");
+const jwtAuth = require("./security/jwtAuth");
+const cors = require("cors");
 
 //라우터 가져오기
 const exam01Home = require("./routes/exam01-home");
@@ -22,6 +25,7 @@ const exam09Session = require("./routes/exam09-session");
 const exam10Router = require("./routes/exam10-router");
 const exam11Sequelize = require("./routes/exam11-sequelize");
 const exam12Auth = require("./routes/exam12-auth");
+const exam13Cors = require("./routes/exam13-cors");
 
 // .env파일을 읽어서 process.env에 추가
 dotenv.config();
@@ -48,6 +52,39 @@ sequelize.sync()
     .catch((err) => {
         console.log("DB 연결 실패", err.message);
     });
+
+//Cors 설정
+// app.use((req, res, next) => {
+
+    // 쿠키를 받을때
+    // res.set("Access-Control-Allow-Origin", "http://localhost:8080");//localhost:8080에서 오는 쿠키는
+    // res.set("Access-Control-Allow-Credentials", "true");
+
+    // 응답 헤더에 받을때
+    // res.set("Access-Control-Allow-Credentials", "false");
+    // res.set("Access-Control-Allow-Origin", "*");//모든 도메인에서 받은 자바스트립트는 나한테 오면 대가 다 허용해주겠다
+    // res.set("Access-Control-Allow-Headers", "*");
+
+    // true일때는 구체적인 값
+    // res.set("Access-Control-Allow-Credentials", "true");//JWT 쿠키 인증일때만 true
+    // res.set("Access-Control-Allow-Origin", "http://localhost:8080");//모든 도메인에서 받은 자바스트립트는 나한테 오면 대가 다 허용해주겠다
+    // res.set("Access-Control-Allow-Headers", "authToken");
+    // res.set("Access-Control-Allow-Methods", "PUT,DELETE,PATCH");
+
+    // res.set("Access-Control-Allow-Credentials", "false");//JWT 쿠키 인증일때만 true
+    // res.set("Access-Control-Allow-Origin", "*");//모든 도메인에서 받은 자바스트립트는 나한테 오면 대가 다 허용해주겠다
+    // res.set("Access-Control-Allow-Headers", "*");
+    // res.set("Access-Control-Allow-Methods", "*");
+
+//     next()
+// });
+
+app.use(cors({
+    origin: "*",
+    allowedHeaders: "*",
+    methods: "*",
+    credentials: false
+}));
 
 
 //정적 파일들을 제공하는 폴더 지정
@@ -86,7 +123,7 @@ app.use(express.static(path.join(__dirname, "public")));//use는 모든 요청 �
 app.use((req, res, next) => {
     res.set("Cache-Control", "no-store");
     next();
-})
+});
 
 //요청 HTTP 본문에 있는 (POST 방식) 데이터를 파싱해서
 //req.body 객체로 만드는 미들웨어 적용
@@ -101,6 +138,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 // app.use(cookieParser());
 
 //세션 설정
+//여기가 JWT는 상관없음
 app.use(session({
     resave: false, //다시 저장 false 
     saveUninitialized: false,
@@ -112,11 +150,16 @@ app.use(session({
     }
 }));//session이 리턴하는게 미들웨어
 
-//(모든 템블릿(뷰, html)에서 바인딩 할 수 있는 데이터)를 설정하는 미들웨어 적용
+//넌적스에 (모든 템블릿(뷰, html)에서 바인딩 할 수 있는 데이터)를 설정하는 미들웨어 적용
 app.use((req, res, next) => {
     res.locals.uid = req.session.uid || null; //session에 uid가있으면 넣어주고 없으면 null
+    //세션 인증일 경우
+    // sessionAuth.setAuth(req, res);
+
+    //JWT인증일 경우
+    jwtAuth.setAuth(req, res);
     next();
-})
+})//locals는 서버에서 사용, 그럼 넌적스에 모든 뷰에서 사용가능
 
 //요청 경로와 라우터 매핑
 //"/"이렇게 요청했을때 exam01Home라는 미들웨어를 실행하겠다. 라우터도 미들웨어
@@ -135,8 +178,9 @@ app.use("/exam07", exam07MultipartFormData);
 app.use("/exam08", exam08Cookie);
 app.use("/exam09", exam09Session);
 app.use("/exam10", exam10Router);
-app.use("/exam11", exam11Sequelize);
+app.use("/exam11", jwtAuth.checkAuth, exam11Sequelize);
 app.use("/exam12", exam12Auth);
+app.use("/exam13", exam13Cors);
 
 //404처리 미들웨어
 //위에 맞는 경로가 없을때
